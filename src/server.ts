@@ -1,5 +1,5 @@
-import { app } from './app'
-import { env } from './env'
+import { app } from '@/app'
+import { env } from '@/env'
 
 const host = '0.0.0.0'
 const port = env.PORT
