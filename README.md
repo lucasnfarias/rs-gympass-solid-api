@@ -2,6 +2,14 @@
 
 Gympass style app.
 
+## How to run
+
+- run `npm i` (check node version on .nvmrc)
+- run `npx prisma generate` (create prisma prisma client and types)
+- run `docker compose up -d` to create a local postgres database container detached
+- run `npx prisma migrate dev` to run db migrations
+- run `npx prisma studio` to visualize your db
+
 ## RFs (Requisitos funcionais)
 
 - [ ] Deve ser possível se cadastrar
