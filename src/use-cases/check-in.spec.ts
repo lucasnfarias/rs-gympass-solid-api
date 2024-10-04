@@ -1,7 +1,8 @@
 import { InMemoryCheckInsRepository } from '@/repositories/in-memory/in-memory-check-ins-repository'
 import { InMemoryGymsRepository } from '@/repositories/in-memory/in-memory-gyms-repository'
 import { CheckInUseCase } from '@/use-cases/check-in'
-import { Decimal } from '@prisma/client/runtime/library'
+import { MaxDistanceError } from '@/use-cases/errors/max-distance-error'
+import { MaxNumberOfCheckInsError } from '@/use-cases/errors/max-number-of-check-ins-error'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 describe('Check-in Use Case', () => {
@@ -9,21 +10,21 @@ describe('Check-in Use Case', () => {
   let gymsRepository: InMemoryGymsRepository
   let sut: CheckInUseCase
 
-  const defaultLatitude = -25.4150172
-  const defaultLongitude = -49.2537338
+  const DEFAULT_LATITUDE = -25.4150172
+  const DEFAULT_LONGITUDE = -49.2537338
 
-  beforeEach(() => {
+  beforeEach(async () => {
     checkInsRepository = new InMemoryCheckInsRepository()
     gymsRepository = new InMemoryGymsRepository()
     sut = new CheckInUseCase(checkInsRepository, gymsRepository)
 
-    gymsRepository.gyms.push({
+    await gymsRepository.create({
       id: 'gym-01',
       title: 'Javascript Whey',
       description: '',
       phone: '',
-      latitude: new Decimal(defaultLatitude),
-      longitude: new Decimal(defaultLongitude),
+      latitude: DEFAULT_LATITUDE,
+      longitude: DEFAULT_LONGITUDE,
     })
 
     vi.useFakeTimers()
@@ -37,8 +38,8 @@ describe('Check-in Use Case', () => {
     const { checkIn } = await sut.execute({
       gymId: 'gym-01',
       userId: 'user-01',
-      userLatitude: defaultLatitude,
-      userLongitude: defaultLongitude,
+      userLatitude: DEFAULT_LATITUDE,
+      userLongitude: DEFAULT_LONGITUDE,
     })
 
     expect(checkIn.id).toEqual(expect.any(String))
@@ -50,18 +51,18 @@ describe('Check-in Use Case', () => {
     await sut.execute({
       gymId: 'gym-01',
       userId: 'user-01',
-      userLatitude: defaultLatitude,
-      userLongitude: defaultLongitude,
+      userLatitude: DEFAULT_LATITUDE,
+      userLongitude: DEFAULT_LONGITUDE,
     })
 
     await expect(() =>
       sut.execute({
         gymId: 'gym-01',
         userId: 'user-01',
-        userLatitude: defaultLatitude,
-        userLongitude: defaultLongitude,
+        userLatitude: DEFAULT_LATITUDE,
+        userLongitude: DEFAULT_LONGITUDE,
       }),
-    ).rejects.toBeInstanceOf(Error)
+    ).rejects.toBeInstanceOf(MaxNumberOfCheckInsError)
   })
 
   it('should be able to check in twice but in different day', async () => {
@@ -70,8 +71,8 @@ describe('Check-in Use Case', () => {
     await sut.execute({
       gymId: 'gym-01',
       userId: 'user-01',
-      userLatitude: defaultLatitude,
-      userLongitude: defaultLongitude,
+      userLatitude: DEFAULT_LATITUDE,
+      userLongitude: DEFAULT_LONGITUDE,
     })
 
     vi.setSystemTime(new Date(2022, 0, 21, 8, 0, 0))
@@ -79,30 +80,31 @@ describe('Check-in Use Case', () => {
     const { checkIn } = await sut.execute({
       gymId: 'gym-01',
       userId: 'user-01',
-      userLatitude: defaultLatitude,
-      userLongitude: defaultLongitude,
+      userLatitude: DEFAULT_LATITUDE,
+      userLongitude: DEFAULT_LONGITUDE,
     })
 
     expect(checkIn.id).toEqual(expect.any(String))
   })
 
   it('should not be able to check in on distant gym', async () => {
-    gymsRepository.gyms.push({
+    // you can use google maps to get this latitudes to be further than MAX_DISTANCE_IN_KILOMETERS
+    await gymsRepository.create({
       id: 'far-away-gym-01',
       title: 'Very Far Far Away Gym',
       description: '',
       phone: '',
-      latitude: new Decimal(-25.37621),
-      longitude: new Decimal(-49.1877729),
+      latitude: -25.37621,
+      longitude: -49.1877729,
     })
 
     await expect(() =>
       sut.execute({
         gymId: 'far-away-gym-01',
         userId: 'user-01',
-        userLatitude: defaultLatitude,
-        userLongitude: defaultLongitude,
+        userLatitude: DEFAULT_LATITUDE,
+        userLongitude: DEFAULT_LONGITUDE,
       }),
-    ).rejects.toBeInstanceOf(Error)
+    ).rejects.toBeInstanceOf(MaxDistanceError)
   })
 })
