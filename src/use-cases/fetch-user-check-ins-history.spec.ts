@@ -2,7 +2,7 @@ import { InMemoryCheckInsRepository } from '@/repositories/in-memory/in-memory-c
 import { FetchUserCheckInsHistoryUseCase } from '@/use-cases/fetch-user-check-ins-history'
 import { beforeEach, describe, expect, it } from 'vitest'
 
-describe('Check-in Use Case', () => {
+describe('Fetch User Check-in History Use Case', () => {
   let checkInsRepository: InMemoryCheckInsRepository
   let sut: FetchUserCheckInsHistoryUseCase
 
