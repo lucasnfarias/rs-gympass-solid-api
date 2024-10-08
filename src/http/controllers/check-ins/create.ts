@@ -8,7 +8,6 @@ export async function create(request: FastifyRequest, reply: FastifyReply) {
   })
 
   const createCheckInBodySchema = z.object({
-    title: z.string(),
     latitude: z.number().refine((value) => {
       return Math.abs(value) <= 90
     }),
