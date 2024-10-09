@@ -4,7 +4,7 @@ import { createAndAuthenticateUser } from '@/utils/test/create-and-authenticate-
 import request from 'supertest'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
-describe('Create Check-In Controller (e2e)', () => {
+describe('Validate Check-In Controller (e2e)', () => {
   const DEFAULT_LATITUDE = -25.4150172
   const DEFAULT_LONGITUDE = -49.2537338
 
@@ -16,10 +16,8 @@ describe('Create Check-In Controller (e2e)', () => {
     await app.close()
   })
 
-  it('should be able to create a check-in', async () => {
-    const { token } = await createAndAuthenticateUser(app)
-
-    const user = await prisma.user.findFirstOrThrow()
+  it('should be able to validate a check-in', async () => {
+    const { user, token } = await createAndAuthenticateUser(app, true)
 
     const gym = await prisma.gym.create({
       data: {

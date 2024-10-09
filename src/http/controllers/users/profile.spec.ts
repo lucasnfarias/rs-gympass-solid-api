@@ -27,6 +27,7 @@ describe('Profile Controller (e2e)', () => {
         created_at: expect.any(String),
         email: 'johndoe@example.com',
         name: 'John Doe',
+        role: 'MEMBER',
       },
     })
   })
