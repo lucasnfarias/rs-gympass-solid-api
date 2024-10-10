@@ -1,4 +1,4 @@
-# App
+# Backend Application
 
 Gympass style app.
 
@@ -8,6 +8,7 @@ Gympass style app.
 - run `npx prisma generate` (create prisma prisma client and types)
 - run `docker compose up -d` to create a local postgres database container detached
 - run `npx prisma migrate dev` to run db migrations
+- run `npm run start:dev` to start the backend api
 - run `npx prisma studio` to visualize your db
 
 ## RFs (Requisitos funcionais)
